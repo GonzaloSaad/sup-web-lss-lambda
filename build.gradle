@@ -1,0 +1,118 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.3.RELEASE'
+        wrapperVersion = '1.0.12.RELEASE'
+        shadowVersion = '2.0.3'
+        archRepoUrl = 'https://nexus-tools.swacorp.com/CREW/content/groups/public'
+    }
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.springframework.boot.experimental:spring-boot-thin-gradle-plugin:${wrapperVersion}")
+        classpath("com.github.jengelman.gradle.plugins:shadow:${shadowVersion}")
+    }
+}
+
+group 'utn.frc.mas'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    maven { url archRepoUrl }
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+ext {
+    springCloudFunctionVersion = "1.0.0.RELEASE"
+    awsLambdaEventsVersion = "2.2.2"
+    awsLambdaCoreVersion = "1.1.0"
+    awsLambdaLoggerVersion = "1.1.0"
+    junitVersion = "4.12"
+    mockitoVersion = "1.9.5"
+    jacksonVersion = "2.9.5"
+    dataAgentsContractVersion = "1.0.41-41"
+    objectHunterVersion = "0.4.8"
+}
+
+ext['reactor.version'] = "3.1.7.RELEASE"
+
+assemble.dependsOn = [shadowJar]
+
+jar {
+    manifest {
+        attributes 'Start-Class': 'com.swacorp.crew.route.RouteFlightWriterApplication'
+    }
+}
+
+import com.github.jengelman.gradle.plugins.shadow.transformers.*
+
+shadowJar {
+    classifier = ''
+    dependencies {
+        exclude(dependency("org.springframework.cloud:spring-cloud-function-web:${springCloudFunctionVersion}"))
+    }
+    // Required for Spring
+    mergeServiceFiles()
+    append 'META-INF/spring.handlers'
+    append 'META-INF/spring.schemas'
+    append 'META-INF/spring.tooling'
+    transform(PropertiesFileTransformer) {
+        paths = ['META-INF/spring.factories']
+        mergeStrategy = "append"
+    }
+}
+
+configurations {
+    testCompile.extendsFrom(compileOnly)
+}
+
+task buildForLocalRun(dependsOn: build) {
+    doLast{
+        def zipFile = file(shadowJar.archivePath.path)
+        def outputDir = file(shadowJar.destinationDir.path + "/run/")
+
+        if(!outputDir.exists()){
+            mkdir(outputDir.path)
+        }
+        copy{
+            from(zipTree(zipFile))
+            into outputDir
+        }
+    }
+}
+
+
+dependencies {
+    compile group:"net.objecthunter", name:"exp4j", version: objectHunterVersion
+    compile group: 'com.amazonaws', name: 'aws-lambda-java-events', version: awsLambdaEventsVersion
+    //compile group: 'com.amazonaws', name: 'aws-lambda-java-log4j2', version: awsLambdaLoggerVersion
+    //compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
+    //compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
+    //compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: jacksonVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.1'
+
+    compileOnly group: 'com.amazonaws', name: 'aws-lambda-java-core', version: awsLambdaCoreVersion
+    testCompile group: 'junit', name: 'junit', version: junitVersion
+    testCompile group: 'org.mockito', name: 'mockito-all', version: mockitoVersion
+    testCompile 'org.powermock:powermock-api-mockito:1.6.2'
+    testCompile 'org.powermock:powermock-module-junit4:1.6.2'
+
+}
+

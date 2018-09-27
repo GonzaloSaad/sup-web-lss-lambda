@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    sam-app
+
+    SAM Template for Route Flight Writer
+
+Globals:
+    Function:
+        Timeout: 300
+
+Resources:
+    LeastSquareSolver:
+          Type: AWS::Serverless::Function
+          Properties:
+              CodeUri: .\build\libs\run
+              Handler: handler.LeastSquareSolverHandler
+              Runtime: java8
+              Timeout: 300
+
+
