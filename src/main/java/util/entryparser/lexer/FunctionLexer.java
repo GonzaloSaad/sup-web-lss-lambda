@@ -38,6 +38,7 @@ public class FunctionLexer {
                 new Lexeme("OP", "-"),
                 new Lexeme("OP", "\\*"),
                 new Lexeme("OP", "/"),
+                new Lexeme("OP", "\\^"),
                 new Lexeme("LP", "\\("),
                 new Lexeme("RP", "\\)"),
                 new Lexeme("CONSTANT", "e")

@@ -5,6 +5,7 @@
  */
 package solver;
 
+import solver.exceptions.EntryNotValidException;
 import util.entryparser.EntryParser;
 import util.mathematics.Function;
 import util.mathematics.GenericVector;
@@ -42,8 +43,13 @@ public class SolverCore {
         solve();
     }
 
-    public SolverCore(double x[], double y[], String input, Method method, Pivot pivot) {
-        EntryParser ep = new EntryParser(input);
+    public SolverCore(double x[], double y[], String input, Method method, Pivot pivot) throws EntryNotValidException {
+        EntryParser ep;
+        try {
+            ep = new EntryParser(input);
+        } catch (Exception e) {
+            throw new EntryNotValidException(e);
+        }
         X = new Vector(x);
         Y = new Vector(y);
         F = new GenericVector<>(ep.getFunctionsArray());

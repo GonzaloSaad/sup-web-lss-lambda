@@ -24,16 +24,8 @@ public class Lexeme {
         return pat;
     }
 
-    public void setPat(String pat) {
-        this.pat = pat;
-    }
-
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     @Override

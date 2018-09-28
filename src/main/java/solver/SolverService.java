@@ -1,11 +1,13 @@
 package solver;
 
+import solver.exceptions.EntryNotValidException;
+
 public class SolverService {
 
 
     private final SolverCore solverCore;
 
-    private SolverService(String x, String y, String function, String method, String pivot) {
+    private SolverService(String x, String y, String function, String method, String pivot) throws EntryNotValidException {
 
         double[] X = separateStringToVector(x);
         double[] Y = separateStringToVector(y);
@@ -50,7 +52,7 @@ public class SolverService {
         return pivot;
     }
 
-    public static SolverService createSolverService(String x, String y, String function, String method, String pivot) {
+    public static SolverService createSolverService(String x, String y, String function, String method, String pivot) throws EntryNotValidException {
         return new SolverService(x, y, function, method, pivot);
     }
 

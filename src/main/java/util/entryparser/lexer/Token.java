@@ -5,6 +5,8 @@
  */
 package util.entryparser.lexer;
 
+import java.util.Objects;
+
 /**
  *
  * @author estre
@@ -32,4 +34,17 @@ public class Token {
         return "Token(" + type + ",'" + value + "')";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return Objects.equals(type, token.type) &&
+                Objects.equals(value, token.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, value);
+    }
 }

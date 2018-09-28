@@ -5,6 +5,8 @@
  */
 package util.entryparser;
 
+import util.entryparser.exceptions.IllegalAmountOfCoefficientsInTermException;
+import util.entryparser.exceptions.ParenthesesNotBalancedException;
 import util.mathematics.Function;
 
 import java.util.ArrayDeque;
@@ -19,81 +21,85 @@ public class EntryParser {
     private final ArrayList<String> constants;
     private final ArrayList<Function> functions;
 
-    public EntryParser(String input) {
+    public EntryParser(String input) throws ParenthesesNotBalancedException, IllegalAmountOfCoefficientsInTermException {
         constants = new ArrayList<>();
         functions = new ArrayList<>();
         split(input);
     }
 
-    private void split(String input) {
+    private void split(String input) throws ParenthesesNotBalancedException, IllegalAmountOfCoefficientsInTermException {
         ArrayList<String> terms = splitTerms(input);
         splitConstantsAndFunctions(terms);
     }
 
-    private ArrayList splitTerms(String input) {
+    private ArrayList<String> splitTerms(String input) throws ParenthesesNotBalancedException {
         ArrayList<String> terms = new ArrayList<>();
-        int i = 0;
-        int p = 0;
-        char c;
+        int index = 0;
+        int previous = 0;
+        char character;
 
-        while (i < input.length()) {
-            c = input.charAt(i);
-            if (c == '+') {
-                terms.add(input.substring(p, i));
-                i++;
-                p = i;
-            } else if (c == '(') {
-                Deque q = new ArrayDeque();
-                q.push(c);
+        while (index < input.length()) {
+            character = input.charAt(index);
+            if (character == '+') {
+                terms.add(input.substring(previous, index));
+                index++;
+                previous = index;
+            } else if (character == '(') {
+                Deque<Character> q = new ArrayDeque<>();
+                q.push(character);
 
                 while (!q.isEmpty()) {
-                    i++;
-                    c = input.charAt(i);
-                    if (c == '(') {
-                        q.push(c);
-                    } else if (c == ')') {
+                    index++;
+                    if (index >= input.length()) {
+                        throw new ParenthesesNotBalancedException("Parentesis are not balanced.");
+                    }
+                    character = input.charAt(index);
+                    if (character == '(') {
+                        q.push(character);
+                    } else if (character == ')') {
                         q.pop();
                     }
-                    if (i >= input.length()) {
-                        throw new IllegalStateException("Parentesis are not balanced.");
-                    }
+
                 }
             }
-            i++;
+            index++;
         }
-        terms.add(input.substring(p, i));
+        terms.add(input.substring(previous, index));
         return terms;
     }
 
-    private void splitConstantsAndFunctions(ArrayList<String> terms) {
-        int i = 0;
+    private void splitConstantsAndFunctions(ArrayList<String> terms) throws IllegalAmountOfCoefficientsInTermException {
+        int functionIndex = 1;
         for (String t : terms) {
             String[] factors = t.split("\\*");
-            ArrayList<String> cleanFactors = new ArrayList();
-            int count = 0;
+            ArrayList<String> cleanFactors = new ArrayList<>();
+            int coefficientCount = 0;
             for (String f : factors) {
                 if (f.matches("[A-Z][0-9]*")) {
-                    count++;
-                    if (count > 1) {
-                        throw new IllegalStateException("One constant is needed per term, and only one.");
+                    coefficientCount++;
+                    if (coefficientCount > 1) {
+                        throw new IllegalAmountOfCoefficientsInTermException("One constant is needed per term, and only one.");
                     }
                     constants.add(f);
                 } else {
                     cleanFactors.add(f);
                 }
             }
-            if (count == 0) {
-                throw new IllegalStateException("One constant is needed per term.");
+            if (coefficientCount == 0) {
+                throw new IllegalAmountOfCoefficientsInTermException("One constant is needed per term.");
             }
-            i++;
 
             if (cleanFactors.size() == 0) {
                 cleanFactors.add("1");
             }
 
-            functions.add(new Function("O" + i + "(x)=" + String.join("*", cleanFactors)));
-
+            functions.add(new Function(getFunctionExpression(functionIndex, cleanFactors)));
+            functionIndex++;
         }
+    }
+
+    private String getFunctionExpression(int functionIndex, ArrayList<String> cleanFactors) {
+        return "O" + functionIndex + "(x)=" + String.join("*", cleanFactors);
     }
 
     public ArrayList<String> getConstants() {
@@ -105,11 +111,11 @@ public class EntryParser {
     }
 
     public String[] getConstantsArray() {
-        return this.constants.toArray(new String[1]);
+        return getConstants().toArray(new String[1]);
     }
 
     public Function[] getFunctionsArray() {
-        return this.functions.toArray(new Function[1]);
+        return getFunctions().toArray(new Function[1]);
     }
 
 }

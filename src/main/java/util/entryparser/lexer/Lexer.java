@@ -22,7 +22,7 @@ public class Lexer {
 
     public ArrayList<Token> tokenize() {
         ArrayList<Token> tokens = new ArrayList<>();
-        StringIterator chars = new StringIterator(string);
+        StringExplorer chars = new StringExplorer(string);
         String c;
         while (chars.hasNext()) {
             c = chars.getChar();
@@ -44,7 +44,7 @@ public class Lexer {
         return tokens;
     }
 
-    private Token scan(ArrayList<Lexeme> lexemes, int size, StringIterator chars) {
+    private Token scan(ArrayList<Lexeme> lexemes, int size, StringExplorer chars) {
 
         if (size == 0) {
             return scanMultiple(lexemes, chars);
@@ -52,7 +52,7 @@ public class Lexer {
         String c = chars.getChars(size);
 
         Token t = null;
-        if (c.equals(StringIterator.NONE)) {
+        if (c.equals(StringExplorer.NONE)) {
             return t;
         }
         for (Lexeme l : lexemes) {
@@ -68,13 +68,13 @@ public class Lexer {
         return t;
     }
 
-    private Token scanMultiple(ArrayList<Lexeme> lexemes, StringIterator chars) {
+    private Token scanMultiple(ArrayList<Lexeme> lexemes, StringExplorer chars) {
         for (Lexeme l : lexemes) {
             int step = 1;
             boolean found = false;
             String c = chars.getChars(step);
 
-            while (!c.equals(StringIterator.NONE)) {
+            while (!c.equals(StringExplorer.NONE)) {
                 if (!c.matches(l.getPat())) {
                     break;
                 }
@@ -100,7 +100,7 @@ public class Lexer {
             if (lexerSize - 1 < lexemeSize) {
                 int top = lexemeSize - lexerSize + 1;
                 for (int i = 0; i < top; i++) {
-                    lexemes.add(new ArrayList<Lexeme>());
+                    lexemes.add(new ArrayList<>());
                 }
             }
             lexemes.get(lexemeSize).add(l);

@@ -4,6 +4,14 @@ public class SolutionResponse {
     private String solution;
     private String error;
     private String completeFunction;
+    private String message;
+
+    public SolutionResponse() {
+    }
+
+    public SolutionResponse(String message) {
+        this.message = message;
+    }
 
     public String getSolution() {
         return solution;
@@ -27,5 +35,13 @@ public class SolutionResponse {
 
     public void setCompleteFunction(String completeFunction) {
         this.completeFunction = completeFunction;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

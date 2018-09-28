@@ -8,14 +8,15 @@ package util.entryparser.lexer;
 /**
  * @author estre
  */
-public class StringIterator {
+public class StringExplorer {
+
+    public static final String NONE = "";
+    private static final int DEFAULT_OFFSET = 1;
 
     private final String string;
     private int current;
-    public static final String NONE = "";
-    private final int DEFAULT_OFFSET = 1;
 
-    public StringIterator(String s) {
+    public StringExplorer(String s) {
         string = s;
         current = 0;
     }
@@ -49,7 +50,5 @@ public class StringIterator {
         return current < string.length();
     }
 
-    public String next() {
-        return getChars(DEFAULT_OFFSET);
-    }
+
 }

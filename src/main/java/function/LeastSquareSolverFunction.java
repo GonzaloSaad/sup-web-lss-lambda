@@ -5,6 +5,7 @@ import model.SolutionResponse;
 import solver.SolverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import solver.exceptions.EntryNotValidException;
 
 import java.util.function.Function;
 
@@ -25,7 +26,12 @@ public class LeastSquareSolverFunction implements Function<SolutionRequest, Solu
     }
 
     private SolutionResponse createSolutionResponseFromService(String x, String y, String function, String method, String pivot) {
-        SolverService service = SolverService.createSolverService(x,y,function,method,pivot);
+        SolverService service;
+        try {
+            service = SolverService.createSolverService(x, y, function, method, pivot);
+        } catch (EntryNotValidException e) {
+            return new SolutionResponse("Invalid entry: " + e.getMessage());
+        }
 
         SolutionResponse response = new SolutionResponse();
         response.setCompleteFunction(service.getCompleteFunction());
