@@ -1,4 +1,4 @@
-# Mat Sup - Least Squared Solver 
+# Mat Sup - Least Square Solver 
 
 ##### AWS Lambda that solves problems with least square method.
 
